@@ -4,4 +4,4 @@ from config import MONGO_URL
 
 client = AsyncIOMotorClient(MONGO_URL)
 db = client["AuthPilot"]
-client_collections = db["client_list"]
+client_collections = db["client"]

@@ -3,7 +3,7 @@ from typing import Optional
 
 class client(BaseModel):
     id: int
-    userName: str
+    username: str
     email: EmailStr
     profile_img: Optional[str] = None
     password: str
