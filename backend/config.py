@@ -9,8 +9,11 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 EXPIRE_MINUTES = os.getenv("EXPIRE_MINUTES")
 
+
+
+BACKEND_URL = os.getenv("BACKEND_URL")
 # CORS origins
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    # frontend url
+    BACKEND_URL
 ]
