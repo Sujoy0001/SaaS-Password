@@ -1,81 +1,77 @@
-from fastapi import APIRouter, HTTPException
-from models.client import ClientSignup, ClientLogin
-from db.database import client_user_collections
+from fastapi import APIRouter, HTTPException, Path, Body
+from models.user import UserSignup, UserLogin, UserOut
+from db.database import client_collections, client_user_collections
 from utils.hash_pass import hash_password, verify_password
-from utils.jwt_handler import create_access_token
-import secrets
 
 router = APIRouter()
 
-# ✅ Get next auto-increment client id
-async def get_next_user_id():
-    last_client = await client_user_collections.find_one(sort=[("id", -1)])
-    return last_client["id"] + 1 if last_client else 1
+async def get_client_by_api_key(api_key: str):
+    client = await client_collections.find_one({"api_key": api_key})
+    if not client:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    return client
 
-# ✅ Register route
-@router.post("/register")
-async def register(user: ClientSignup):
-    # Check duplicate email
-    if await client_user_collections.find_one({"email": user.email}):
-        raise HTTPException(status_code=400, detail="Email already registered")
+async def get_next_user_id():
+    last_user = await client_user_collections.find_one(sort=[("id", -1)])
+    return last_user["id"] + 1 if last_user else 1
+
+# 1️⃣ User Register
+@router.post("/{api_key}/user/register")
+async def user_register(api_key: str = Path(...), user: UserSignup = Body(...)):
+    client = await get_client_by_api_key(api_key)
     
-    # Check duplicate username
-    if await client_user_collections.find_one({"username": user.username}):
-        raise HTTPException(status_code=400, detail="Username already taken")
+    if await client_user_collections.find_one({"email": user.email, "client_id": client["id"]}):
+        raise HTTPException(status_code=400, detail="Email already registered for this client")
     
     user_dict = user.dict()
     user_dict["password"] = hash_password(user.password)
     user_dict["id"] = await get_next_user_id()
+    user_dict["client_id"] = client["id"]
 
-    result = await client_user_collections.insert_one(user_dict)
+    await client_user_collections.insert_one(user_dict)
+    
+    return {"message": "User registered successfully", "user_id": user_dict["id"]}
 
-    return {
-        "message": "User registered successfully",
-        "id": str(result.inserted_id)
-    }
-
-# ✅ Login route using ClientLogin model for cleaner request validation
-@router.post("/login")
-async def login(user: ClientLogin):
-    user_in_db = await client_user_collections.find_one({"email": user.email})
-
+# 2️⃣ User Login
+@router.post("/{api_key}/user/login")
+async def user_login(api_key: str = Path(...), user: UserLogin = Body(...)):
+    client = await get_client_by_api_key(api_key)
+    
+    user_in_db = await client_user_collections.find_one({"email": user.email, "client_id": client["id"]})
     if not user_in_db:
-        raise HTTPException(status_code=404, detail="Email not registered")
-
+        raise HTTPException(status_code=404, detail="Email not registered for this client")
+    
     if not verify_password(user.password, user_in_db["password"]):
         raise HTTPException(status_code=401, detail="Invalid password")
-
-    token = create_access_token({
-        "id": user_in_db["id"],
-        "username": user_in_db["username"],
-        "email": user_in_db["email"],
-    })
-
+    
     return {
-        "access_token": token,
-        "token_type": "bearer",
+        "message": "Login successful",
+        "username": user_in_db["username"],
+        "user_id": user_in_db["id"]
     }
 
-# ✅ Show all users
-@router.get("/all")
-async def show_all_users():
-    users_cursor = client_user_collections.find()
+# 3️⃣ Show All Users
+@router.get("/{api_key}/user/all")
+async def show_all_users(api_key: str = Path(...)):
+    client = await get_client_by_api_key(api_key)
+    
+    users_cursor = client_user_collections.find({"client_id": client["id"]})
     users = []
     async for user in users_cursor:
         users.append({
             "id": user["id"],
             "username": user["username"],
-            "email": user["email"],
+            "email": user["email"]
         })
-        
     return {"total_users": len(users), "users": users}
 
-# ✅ Delete user by ID
-@router.delete("/{user_id}")
-async def delete_user(user_id: int):
-    result = await client_user_collections.delete_one({"id": user_id})
+# 4️⃣ Delete User by ID (expects user_id as query param)
+@router.delete("/{api_key}/user/delete")
+async def delete_user(api_key: str = Path(...), user_id: int = Body(...)):
+    client = await get_client_by_api_key(api_key)
     
+    result = await client_user_collections.delete_one({"id": user_id, "client_id": client["id"]})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="User not found or already deleted")
+        raise HTTPException(status_code=404, detail="User not found for this client")
     
     return {"message": f"User with id {user_id} deleted successfully"}
