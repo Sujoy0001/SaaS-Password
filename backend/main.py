@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import auth, show
+from routes import auth, show, user
 from config import ALLOWED_ORIGINS
 
 app = FastAPI()
@@ -20,3 +20,4 @@ async def index():
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(show.router, tags=["Client"])
+app.include_router(user.router, prefix="/user", tags=["user"])
