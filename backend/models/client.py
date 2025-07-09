@@ -1,13 +1,12 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
-
-class client(BaseModel):
+class Client(BaseModel):
     id: int
     username: str
     email: EmailStr
+    api_key: str
     profile_img: Optional[str] = None
-    password: str
-    
-class Login(BaseModel):
+    password: str  
+class ClientLogin(BaseModel):
     email: EmailStr
     password: str

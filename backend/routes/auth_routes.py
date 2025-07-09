@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from models.client import client
+from models.client import Client
 from db.database import client_collections
 from utils.hash_pass import hash_password, verify_password
 from utils.jwt_handler import create_access_token
@@ -12,7 +12,7 @@ async def get_next_client_id():
     return last_client["id"] + 1 if last_client else 1
 
 @router.post("/register")
-async def register(user: client):
+async def register(user: Client):
     if await client_collections.find_one({"email": user.email}):
         raise HTTPException(status_code=400, detail="Email already registered")
 
