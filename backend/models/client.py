@@ -1,16 +1,11 @@
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
-class Client(BaseModel):
-    id: int
-    username: str
-    email: EmailStr
-    api_key: str
-    password: str  
-    
+from pydantic import BaseModel, EmailStr, StringConstraints
+from typing import Annotated
+
 class ClientSignup(BaseModel):
-    username: str
+    username: Annotated[str, StringConstraints(min_length=3, max_length=30)]
     email: EmailStr
-    password: str
+    password: Annotated[str, StringConstraints(min_length=4)]
+
 class ClientLogin(BaseModel):
     email: EmailStr
     password: str
