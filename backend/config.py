@@ -11,9 +11,9 @@ EXPIRE_MINUTES = os.getenv("EXPIRE_MINUTES")
 
 
 
-BACKEND_URL = os.getenv("BACKEND_URL")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 # CORS origins
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    BACKEND_URL
+    FRONTEND_URL
 ]
