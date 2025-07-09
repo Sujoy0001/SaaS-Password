@@ -75,3 +75,23 @@ async def delete_user(api_key: str = Path(...), user_id: int = Body(...)):
         raise HTTPException(status_code=404, detail="User not found for this client")
     
     return {"message": f"User with id {user_id} deleted successfully"}
+
+
+# ✅ Single user show route for a client
+@router.get("/{api_key}/user/show/{user_id}")
+async def show_single_user(api_key: str = Path(...), user_id: int = Path(...)):
+    client = await client_collections.find_one({"api_key": api_key})
+    if not client:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    
+    user = await client_user_collections.find_one({"id": user_id, "client_id": client["id"]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found for this client")
+    
+    user_data = {
+        "id": user["id"],
+        "username": user["username"],
+        "email": user["email"]
+    }
+    
+    return user_data

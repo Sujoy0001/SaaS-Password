@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from typing import Dict
 from models.client import ClientSignup, ClientLogin
 from db.database import client_collections
 from utils.hash_pass import hash_password, verify_password
@@ -7,6 +8,29 @@ import secrets
 
 router = APIRouter()
 
+async def create_client_api(api_key: str) -> Dict[str, str]:
+    client = await client_collections.find_one({"api_key": api_key})
+    
+    if not client:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    
+    result = {
+        "register_api": f"/{api_key}/user/register",
+        "login_api": f"/{api_key}/user/login",
+        "delete_api": f"/{api_key}/user/delete",
+        "show_user_api": f"/{api_key}/user/show/{{user_id}}"
+    }
+
+    # Save result into the same client document (merge/update)
+    await client_collections.update_one(
+        {"api_key": api_key},
+        {"$set": {"routes": result}}
+    )
+
+    return result
+    
+    
+    
 # ✅ Get next auto-increment client id
 async def get_next_client_id():
     last_client = await client_collections.find_one(sort=[("id", -1)])
@@ -27,8 +51,12 @@ async def register(user: ClientSignup):
     user_dict["password"] = hash_password(user.password)
     user_dict["id"] = await get_next_client_id()
     user_dict["api_key"] = secrets.token_hex(16)  # Secure api_key generation
+    user_dict["routes"] = {} 
+    
 
     result = await client_collections.insert_one(user_dict)
+    
+    await create_client_api(user_dict["api_key"])
 
     return {
         "message": "User registered successfully",
