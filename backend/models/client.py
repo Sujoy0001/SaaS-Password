@@ -5,8 +5,12 @@ class Client(BaseModel):
     username: str
     email: EmailStr
     api_key: str
-    profile_img: Optional[str] = None
     password: str  
+    
+class ClientSignup(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
 class ClientLogin(BaseModel):
     email: EmailStr
     password: str
