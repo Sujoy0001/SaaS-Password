@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import auth_routes
+from routes import auth, show
 from config import ALLOWED_ORIGINS
 
 app = FastAPI()
@@ -18,4 +18,5 @@ app.add_middleware(
 async def index():
     return {"message": "Welcome to fastapi backend"}
 
-app.include_router(auth_routes.router, prefix="/auth", tags=["auth"])
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(show.router, tags=["Client"])
