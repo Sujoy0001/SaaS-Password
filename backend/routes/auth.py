@@ -4,6 +4,7 @@ from models.client import ClientSignup, ClientLogin
 from db.database import client_collections
 from utils.hash_pass import hash_password, verify_password
 from utils.jwt_handler import create_access_token
+from config import BACKEND_URL
 import secrets
 
 router = APIRouter()
@@ -15,10 +16,10 @@ async def create_client_api(api_key: str) -> Dict[str, str]:
         raise HTTPException(status_code=401, detail="Invalid API key")
     
     result = {
-        "register_api": f"/{api_key}/user/register",
-        "login_api": f"/{api_key}/user/login",
-        "delete_api": f"/{api_key}/user/delete",
-        "show_user_api": f"/{api_key}/user/show/{{user_id}}"
+        "register_api": f"{BACKEND_URL}/{api_key}/user/register",
+        "login_api": f"{BACKEND_URL}/{api_key}/user/login",
+        "delete_api": f"{BACKEND_URL}/{api_key}/user/delete",
+        "show_user_api": f"{BACKEND_URL}/{api_key}/user/show/{{user_id}}"
     }
 
     # Save result into the same client document (merge/update)
