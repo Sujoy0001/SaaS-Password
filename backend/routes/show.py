@@ -14,7 +14,7 @@ async def get_client(id: int):
         "id": client["id"],
         "username": client["username"],
         "email": client["email"],
-        "api_key": client["api_key"]
+        "routes": client["routes"],
     }
     
     return client_data
