@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routes import auth, show, user
 from config import ALLOWED_ORIGINS
+from mangum import Mangum
 
 app = FastAPI()
 
@@ -21,3 +22,6 @@ async def index():
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(show.router, tags=["Client"])
 app.include_router(user.router, tags=["user"])
+
+
+handler = Mangum(app)
