@@ -16,7 +16,7 @@ app.add_middleware(
 
 @app.get("/")
 async def index():
-    return {"message": "Welcome to fastapi backend"}
+    return {"message": "Welcome to LockAPI backend"}
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(show.router, tags=["Client"])
