@@ -78,7 +78,7 @@ async def delete_user(api_key: str = Path(...), user_id: int = Body(...)):
 
 
 # ✅ Single user show route for a client
-@router.get("/{api_key}/user/show/{user_id}")
+@router.get("/{api_key}/user/{user_id}")
 async def show_single_user(api_key: str = Path(...), user_id: int = Path(...)):
     client = await client_collections.find_one({"api_key": api_key})
     if not client:

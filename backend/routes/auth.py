@@ -16,10 +16,11 @@ async def create_client_api(api_key: str) -> Dict[str, str]:
         raise HTTPException(status_code=401, detail="Invalid API key")
     
     result = {
+        "base_api": f"{BACKEND_URL}/{api_key}/user",
         "register_api": f"{BACKEND_URL}/{api_key}/user/register",
         "login_api": f"{BACKEND_URL}/{api_key}/user/login",
         "delete_api": f"{BACKEND_URL}/{api_key}/user/delete",
-        "show_user_api": f"{BACKEND_URL}/{api_key}/user/show/{{user_id}}"
+        "show_user_api": f"{BACKEND_URL}/{api_key}/user/{{user_id}}"
     }
 
     # Save result into the same client document (merge/update)
