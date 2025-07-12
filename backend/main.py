@@ -1,14 +1,25 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter, Request, Response
 from routes import auth, show, user
 from config import ALLOWED_ORIGINS
-
-app = FastAPI()
+from fastapi.routing import APIRoute
 
 from fastapi.middleware.cors import CORSMiddleware
 
+class PreflightRoute(APIRoute):
+    def get_route_handler(self):
+        original_route_handler = super().get_route_handler()
+        async def custom_route_handler(request: Request):
+            if request.method == "OPTIONS":
+                return Response(status_code=200)
+            return await original_route_handler(request)
+        return custom_route_handler
+    
+    
+app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
