@@ -9,3 +9,9 @@ class ClientSignup(BaseModel):
 class ClientLogin(BaseModel):
     email: EmailStr
     password: str
+    
+class ClientResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    routes: list
