@@ -14,4 +14,5 @@ class ClientResponse(BaseModel):
     id: str
     username: str
     email: str
+    api_key: str
     routes: Dict[str, str]

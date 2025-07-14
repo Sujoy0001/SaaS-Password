@@ -15,6 +15,7 @@ async def get_client(email: str):
         "id": str(client["id"]),  # Convert id to string
         "username": client["username"],
         "email": client["email"],
+        "api_key": client["api_key"],
         "routes": client["routes"],  # keep as dict
     }
     
