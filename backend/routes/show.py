@@ -12,10 +12,10 @@ async def get_client(email: str):
         raise HTTPException(status_code=404, detail="Client not found")
     
     client_data = {
-        "id": client.get("id") or str(client["_id"]),
+        "id": str(client["id"]),  # Convert id to string
         "username": client["username"],
         "email": client["email"],
-        "routes": client["routes"],
+        "routes": client["routes"],  # keep as dict
     }
     
     return client_data

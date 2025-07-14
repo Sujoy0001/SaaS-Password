@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, StringConstraints
-from typing import Annotated, List
+from typing import Annotated, Dict
 
 class ClientSignup(BaseModel):
     username: Annotated[str, StringConstraints(min_length=3, max_length=30)]
@@ -14,4 +14,4 @@ class ClientResponse(BaseModel):
     id: str
     username: str
     email: str
-    routes: List[str]
+    routes: Dict[str, str]
