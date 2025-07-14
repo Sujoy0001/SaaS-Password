@@ -25,12 +25,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-async def only_allow_frontend(request: Request):
-    origin = request.headers.get("origin")
-    allowed_origin = FRONTEND_URL
-    if origin != allowed_origin:
-        raise HTTPException(status_code=403, detail="Not allowed from this origin")
-    return True
+# async def only_allow_frontend(request: Request):
+#     origin = request.headers.get("origin")
+#     allowed_origin = FRONTEND_URL
+#     if origin != allowed_origin:
+#         raise HTTPException(status_code=403, detail="Not allowed from this origin")
+#     return True
 
 @app.get("/")
 async def index():
