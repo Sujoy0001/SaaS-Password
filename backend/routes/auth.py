@@ -54,7 +54,6 @@ async def register(user: ClientSignup):
     user_dict["id"] = await get_next_client_id()
     user_dict["api_key"] = secrets.token_hex(16)  # Secure api_key generation
     user_dict["routes"] = {} 
-    
 
     result = await client_collections.insert_one(user_dict)
     
@@ -85,5 +84,6 @@ async def login(user: ClientLogin):
     return {
         "access_token": token,
         "token_type": "bearer",
+        "email": user_in_db["email"],
     }
 
