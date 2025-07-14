@@ -1,6 +1,6 @@
-from fastapi import FastAPI, APIRouter, Request, Response
+from fastapi import FastAPI, Request, Response, HTTPException, Depends
 from routes import auth, show, user
-from config import ALLOWED_ORIGINS
+from config import FRONTEND_URL
 from fastapi.routing import APIRoute
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,10 +25,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+async def only_allow_frontend(request: Request):
+    origin = request.headers.get("origin")
+    allowed_origin = FRONTEND_URL
+    if origin != allowed_origin:
+        raise HTTPException(status_code=403, detail="Not allowed from this origin")
+    return True
+
 @app.get("/")
 async def index():
     return {"message": "Welcome to LockAPI backend"}
 
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
-app.include_router(show.router, tags=["Client"])
+app.include_router(auth.router, prefix="/auth", tags=["auth"], dependencies=[Depends(only_allow_frontend)])
+app.include_router(show.router, tags=["Client"],  dependencies=[Depends(only_allow_frontend)])
 app.include_router(user.router, tags=["user"])
