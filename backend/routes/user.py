@@ -65,14 +65,24 @@ async def show_all_users(api_key: str = Path(...)):
         })
     return {"total_users": len(users), "users": users}
 
-# 4️⃣ Delete User by ID (expects user_id as query param)
+# 4️⃣ Delete User by ID
 @router.delete("/{api_key}/user/delete")
-async def delete_user(api_key: str = Path(...), user_id: int = Body(...)):
+async def delete_user(
+    api_key: str = Path(...),
+    user_id: int = Body(..., embed=True)  # Expects {"user_id": 8} format
+):
     client = await get_client_by_api_key(api_key)
     
-    result = await client_user_collections.delete_one({"id": user_id, "client_id": client["id"]})
+    result = await client_user_collections.delete_one({
+        "id": user_id,
+        "client_id": client["id"]
+    })
+    
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="User not found for this client")
+        raise HTTPException(
+            status_code=404,
+            detail=f"User with id {user_id} not found for this client"
+        )
     
     return {"message": f"User with id {user_id} deleted successfully"}
 
