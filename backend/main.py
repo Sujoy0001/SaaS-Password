@@ -27,8 +27,8 @@ app.add_middleware(
 
 async def only_allow_frontend(request: Request):
     origin = request.headers.get("origin")
-    # allowed_origin = FRONTEND_URL
-    allowed_origin = "http://localhost:5173"
+    allowed_origin = FRONTEND_URL
+    # allowed_origin = "http://localhost:5173"
     if origin != allowed_origin:
         raise HTTPException(status_code=403, detail="Not allowed from this origin")
     return True
