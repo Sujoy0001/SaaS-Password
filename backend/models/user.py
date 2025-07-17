@@ -8,7 +8,7 @@ class UserSignup(BaseModel):
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
+    password: Annotated[str, StringConstraints(min_length=4)]
 
 class UserOut(BaseModel):
     id: int

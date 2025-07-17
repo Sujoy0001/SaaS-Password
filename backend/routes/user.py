@@ -30,7 +30,7 @@ async def user_register(api_key: str = Path(...), user: UserSignup = Body(...)):
 
     await client_user_collections.insert_one(user_dict)
     
-    return {"message": "User registered successfully", "user_id": user_dict["id"]}
+    return {"message": "User registered successfully", "user_eamil": user_dict["email"]}
 
 # 2️⃣ User Login
 @router.post("/{api_key}/user/login")
@@ -47,7 +47,7 @@ async def user_login(api_key: str = Path(...), user: UserLogin = Body(...)):
     return {
         "message": "Login successful",
         "username": user_in_db["username"],
-        "user_id": user_in_db["id"]
+        "eamil": user_in_db["email"]
     }
 
 # 3️⃣ Show All Users
@@ -65,36 +65,36 @@ async def show_all_users(api_key: str = Path(...)):
         })
     return {"total_users": len(users), "users": users}
 
-# 4️⃣ Delete User by ID
-@router.delete("/{api_key}/user/delete")
+# 4️⃣ Delete User by Email
+@router.delete("/{api_key}/user/delete/{user_email}")
 async def delete_user(
     api_key: str = Path(...),
-    user_id: int = Body(..., embed=True)  # Expects {"user_id": 8} format
+    user_email: str = Path(...)
 ):
     client = await get_client_by_api_key(api_key)
     
     result = await client_user_collections.delete_one({
-        "id": user_id,
+        "email": user_email,
         "client_id": client["id"]
     })
     
     if result.deleted_count == 0:
         raise HTTPException(
             status_code=404,
-            detail=f"User with id {user_id} not found for this client"
+            detail=f"User with email {user_email} not found for this client"
         )
     
-    return {"message": f"User with id {user_id} deleted successfully"}
+    return {"message": f"User with email {user_email} deleted successfully"}
 
 
-# ✅ Single user show route for a client
-@router.get("/{api_key}/user/{user_id}")
-async def show_single_user(api_key: str = Path(...), user_id: int = Path(...)):
+# ✅ Single user show route for a client by email
+@router.get("/{api_key}/user/{user_email}")
+async def show_single_user(api_key: str = Path(...), user_email: str = Path(...)):
     client = await client_collections.find_one({"api_key": api_key})
     if not client:
         raise HTTPException(status_code=401, detail="Invalid API key")
     
-    user = await client_user_collections.find_one({"id": user_id, "client_id": client["id"]})
+    user = await client_user_collections.find_one({"email": user_email, "client_id": client["id"]})
     if not user:
         raise HTTPException(status_code=404, detail="User not found for this client")
     
@@ -105,3 +105,4 @@ async def show_single_user(api_key: str = Path(...), user_id: int = Path(...)):
     }
     
     return user_data
+

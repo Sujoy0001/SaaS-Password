@@ -8,7 +8,7 @@ class ClientSignup(BaseModel):
 
 class ClientLogin(BaseModel):
     email: EmailStr
-    password: str
+    password: Annotated[str, StringConstraints(min_length=4)]
     
 class ClientResponse(BaseModel):
     id: str
