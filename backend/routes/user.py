@@ -30,7 +30,7 @@ async def user_register(api_key: str = Path(...), user: UserSignup = Body(...)):
 
     await client_user_collections.insert_one(user_dict)
     
-    return {"message": "User registered successfully", "user_eamil": user_dict["email"]}
+    return {"message": "User registered successfully", "user_email": user_dict["email"]}
 
 # 2️⃣ User Login
 @router.post("/{api_key}/user/login")
