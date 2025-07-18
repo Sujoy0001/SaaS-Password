@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from typing import Dict
-from models.client import ClientSignup, ClientLogin
+from models.client import ClientSignup, ClientLogin, RouteDetail
 from db.database import client_collections
 from utils.hash_pass import hash_password, verify_password
 from utils.jwt_handler import create_access_token
@@ -9,18 +9,33 @@ import secrets
 
 router = APIRouter()
 
-async def create_client_api(api_key: str) -> Dict[str, str]:
+async def create_client_api(api_key: str) -> Dict[str, RouteDetail]:
     client = await client_collections.find_one({"api_key": api_key})
     
     if not client:
         raise HTTPException(status_code=401, detail="Invalid API key")
     
     result = {
-        "base_api": f"{BACKEND_URL}/{api_key}/user",
-        "register_api": f"{BACKEND_URL}/{api_key}/user/register",
-        "login_api": f"{BACKEND_URL}/{api_key}/user/login",
-        "delete_api": f"{BACKEND_URL}/{api_key}/user/delete/{{user_email}}",
-        "show_user_api": f"{BACKEND_URL}/{api_key}/user/{{user_email}}"
+        "base_api": {
+            "url" :f"{BACKEND_URL}/{api_key}/user",
+            "method" : "None",
+        },
+        "register_api": {
+            "url" :f"{BACKEND_URL}/{api_key}/user/register",
+            "method" : "POST",
+        },
+        "login_api": {
+            "url" :f"{BACKEND_URL}/{api_key}/user/login",
+            "method" : "POST",
+        },
+        "delete_api": {
+            "url" :f"{BACKEND_URL}/{api_key}/user/delete/{{user_email}}",
+            "method" : "DELETE",
+        },
+        "show_user_api": {
+            "url" :f"{BACKEND_URL}/{api_key}/user/{{user_email}}",
+            "method" : "GET",
+        }
     }
 
     # Save result into the same client document (merge/update)
@@ -29,7 +44,7 @@ async def create_client_api(api_key: str) -> Dict[str, str]:
         {"$set": {"routes": result}}
     )
 
-    return result
+    return result # type: ignore
     
     
     
